@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>General Settings</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         :root {
@@ -23,6 +23,8 @@
             --border-dark: #444;
             --shadow-light: rgba(0, 0, 0, 0.1);
             --shadow-dark: rgba(0, 0, 0, 0.3);
+            --transition-duration: 0.3s;
+            --toggle-color: #fff;
         }
 
         body {
@@ -30,40 +32,40 @@
             background-color: var(--primary-bg-light);
             color: var(--primary-text-light);
             overflow-x: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color var(--transition-duration), color var(--transition-duration);
         }
 
         .header {
             background-color: var(--primary-button-bg);
             color: #ffffff;
-            padding: 16px;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            padding: 16px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 8px var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
         }
 
         .header h1 {
+            font-size: 24px;
             margin: 0;
-            font-size: 1.8rem;
-            font-weight: bold;
         }
 
-        .back-btn {
-            background: none;
-            border: none;
+        .header button {
+            background-color: transparent;
+            border: 1px solid #ffffff;
             color: #ffffff;
-            font-size: 1.3rem;
+            padding: 8px 16px;
             cursor: pointer;
-            transition: color 0.3s;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
         }
 
-        .back-btn:hover {
-            color: #a2c5f8;
+        .header button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
         .container {
@@ -73,28 +75,6 @@
             background-color: var(--card-bg-light);
             border-radius: 12px;
             box-shadow: 0px 12px 32px var(--shadow-light);
-            animation: fadeIn 0.8s ease-in-out;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .container h2 {
-            font-size: 2rem;
-            margin-bottom: 24px;
-            color: var(--primary-text-light);
-            font-weight: bold;
-            text-align: center;
         }
 
         .form-group {
@@ -115,18 +95,12 @@
             padding: 14px;
             border: 1px solid var(--border-light);
             border-radius: 8px;
-            transition: border-color 0.3s;
         }
 
         .form-group select:focus,
         .form-group input[type="file"]:focus {
             border-color: var(--primary-button-bg);
             outline: none;
-            box-shadow: 0px 0px 8px rgba(29, 78, 216, 0.3);
-        }
-
-        .form-group select option {
-            font-weight: normal;
         }
 
         .toggle-switch {
@@ -134,7 +108,7 @@
             align-items: center;
             cursor: pointer;
             user-select: none;
-            transition: transform 0.2s ease-in-out;
+            transition: all 0.3s ease; /* Smooth transition for all toggle actions */
         }
 
         .toggle-switch input {
@@ -148,7 +122,7 @@
             border-radius: 50px;
             position: relative;
             margin-right: 12px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease; /* Smooth background color transition */
         }
 
         .toggle-switch .slider::before {
@@ -158,10 +132,10 @@
             left: 3px;
             width: 16px;
             height: 16px;
-            background-color: #ffffff;
+            background-color: var(--toggle-color);
             border-radius: 50%;
             transform: translateY(-50%);
-            transition: transform 0.3s;
+            transition: transform 0.3s ease; /* Smooth sliding of the toggle circle */
         }
 
         .toggle-switch input:checked + .slider {
@@ -181,36 +155,21 @@
             font-weight: bold;
             text-align: center;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .btn-save:hover {
             transform: scale(1.1);
             box-shadow: 0px 10px 24px rgba(29, 78, 216, 0.4);
         }
-
-        .profile-pic {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 16px;
-        }
-
-        .profile-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 24px;
-            text-align: center;
-        }
     </style>
 </head>
 
 <body>
-    <canvas id="backgroundCanvas"></canvas>
 
     <header class="header">
-        <button onclick="window.location.href='index.html'" class="back-btn">
+        <button onclick="window.location.href='index.html'">
             <i class="fas fa-arrow-left"></i> Back
         </button>
         <h1>General Settings</h1>
@@ -219,60 +178,49 @@
     <div class="container">
         <h2>General Preferences</h2>
 
+        <!-- Help and Support Settings -->
+        <h4>Help and Support Settings</h4>
         <div class="form-group">
-            <div style="text-align: center;">
-                <img src="profile-pic.jpg" alt="Profile Picture" class="profile-pic" />
-                <p class="profile-name" id="profile-name">John Doe</p>
-                <input type="file" id="profile-pic-upload" onchange="uploadProfilePic()" />
+            <label for="help-support">Help and support notifications</label>
+            <div class="toggle-switch">
+                <input type="checkbox" id="help-support" onchange="toggleFeature('help-support')" />
+                <span class="slider"></span>
+                <span>Enable</span>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter your name" oninput="updateUsername()" />
-        </div>
-
-        <!-- Language Selection -->
-        <div class="form-group">
-            <label for="language">Language</label>
-            <select id="language">
-                <option>English</option>
-                <option>Spanish</option>
-                <option>French</option>
-                <option>German</option>
-                <option>Italian</option>
-                <option>Portuguese</option>
-            </select>
-        </div>
-
-        <!-- Timezone Selection -->
-        <div class="form-group">
-            <label for="timezone">Timezone</label>
-            <select id="timezone">
-                <option>GMT</option>
-                <option>UTC</option>
-                <option>PST</option>
-                <option>EST</option>
-                <option>CST</option>
-            </select>
-        </div>
-
-        <!-- Theme Selection -->
-        <div class="form-group">
-            <label for="theme">Theme</label>
-            <select id="theme" onchange="toggleTheme()">
-                <option>Light</option>
-                <option>Dark</option>
-            </select>
-        </div>
-
-        <!-- Profile Visibility -->
-        <div class="form-group">
-            <label for="profile-visibility">Profile Visibility</label>
+            <label for="tips-tutorials">Enable Tips and Tutorials</label>
             <div class="toggle-switch">
-                <input type="checkbox" id="profile-visibility" />
+                <input type="checkbox" id="tips-tutorials" onchange="toggleFeature('tips-tutorials')" />
                 <span class="slider"></span>
-                <span>Public</span>
+                <span>Enable</span>
+            </div>
+        </div>
+
+        <!-- Backup and Import/Export Options -->
+        <h4>Backup and Import/Export Options</h4>
+        <div class="form-group">
+            <label for="backup-frequency">Backup Frequency</label>
+            <select id="backup-frequency" class="form-control">
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="import-export">Import/Export Contacts and Emails</label>
+            <input type="file" class="form-control" id="import-export" />
+        </div>
+
+        <!-- Account Synchronization -->
+        <h4>Account Synchronization</h4>
+        <div class="form-group">
+            <label for="sync-accounts">Enable Account Synchronization</label>
+            <div class="toggle-switch">
+                <input type="checkbox" id="sync-accounts" onchange="toggleFeature('sync-accounts')" />
+                <span class="slider"></span>
+                <span>Enable</span>
             </div>
         </div>
 
@@ -280,101 +228,19 @@
         <button class="btn-save" onclick="saveSettings()">Save Changes</button>
     </div>
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
 
     <script>
-        // Three.js scene setup
-        const canvas = document.getElementById("backgroundCanvas");
-        const renderer = new THREE.WebGLRenderer({ canvas });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(canvas);
-    
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    
-        // Scene background color
-        scene.background = new THREE.Color(0x1e1e1e); // Dark background color
-    
-        // Adding realistic lighting
-        const pointLight = new THREE.PointLight(0xFFFFFF, 1, 100);
-        pointLight.position.set(5, 5, 5);
-        scene.add(pointLight);
-    
-        const ambientLight = new THREE.AmbientLight(0x404040, 1);
-        scene.add(ambientLight);
-    
-        // Adding a Directional light for more realistic shading
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        directionalLight.position.set(5, 10, 5);
-        scene.add(directionalLight);
-    
-        // Set camera position
-        camera.position.z = 5;
-    
-        // Skybox for dynamic background
-        const loader = new THREE.CubeTextureLoader();
-        const texture = loader.load([
-            'path/to/px.jpg', 'path/to/nx.jpg',
-            'path/to/py.jpg', 'path/to/ny.jpg',
-            'path/to/pz.jpg', 'path/to/nz.jpg'
-        ]);
-        scene.background = texture;
-    
-        // Window resize handler
-        window.addEventListener('resize', () => {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        });
-    
-        // No 3D objects or animations added
-    
-        // Theme toggle function for page styling
-        function toggleTheme() {
-            const theme = document.getElementById("theme").value;
-            if (theme === "Dark") {
-                document.body.style.backgroundColor = "#121212";
-                document.body.style.color = "#e4e4e4";
-                document.querySelector(".container").style.backgroundColor = "#1e1e1e";
-                document.querySelector(".header").style.backgroundColor = "#2563eb";
-                scene.background = new THREE.Color(0x1e1e1e); // Dark background for scene
-            } else {
-                document.body.style.backgroundColor = "#f4f5f7";
-                document.body.style.color = "#333";
-                document.querySelector(".container").style.backgroundColor = "#ffffff";
-                document.querySelector(".header").style.backgroundColor = "#1d4ed8";
-                scene.background = new THREE.Color(0xffffff); // Light background for scene
-            }
+        function toggleFeature(featureId) {
+            const feature = document.getElementById(featureId);
+            gsap.to(feature, { opacity: feature.checked ? 1 : 0.6, duration: 0.3 });
         }
-    
-        // Profile picture upload function
-        function uploadProfilePic() {
-            const input = document.getElementById('profile-pic-upload');
-            const reader = new FileReader();
-            reader.onload = function () {
-                document.querySelector('.profile-pic').src = reader.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    
-        // Realistic username update
-        function updateUsername() {
-            const usernameInput = document.getElementById('username');
-            const profileName = document.getElementById('profile-name');
-            profileName.textContent = usernameInput.value || "John Doe"; // Default to "John Doe" if empty
-        }
-    
-        // Save settings function
+
         function saveSettings() {
-            const username = document.getElementById('username').value;
-            const theme = document.getElementById('theme').value;
-            // In a real-world scenario, you would save these settings using localStorage or an API call
-            console.log("Settings saved:", { username, theme });
-            alert('Settings Saved!');
+            alert("Settings saved successfully!");
         }
     </script>
-    
+
 </body>
 
 </html>

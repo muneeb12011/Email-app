@@ -1,370 +1,753 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notification Page</title>
     <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      /* Basic Reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f5f7;
+        padding: 0;
+        margin: 0;
+        color: #333;
+        transition: background-color 0.3s ease-in-out;
+      }
+
+      /* Main Content Area */
+      .main-content {
+        padding: 20px;
+      }
+
+      /* Notification Page Styling */
+      .notification-page {
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        max-width: 900px;
+        margin: 50px auto;
+        display: block;
+        height: calc(100vh - 100px);
+        overflow-y: auto;
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f5f7;
-            padding: 0;
-            margin: 0;
-            color: #333;
-            transition: background-color 0.3s ease-in-out;
+        to {
+          opacity: 1;
+        }
+      }
+
+      .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+
+      .notification-header h2 {
+        font-size: 22px;
+        color: #333;
+      }
+
+      .notification-category {
+        font-size: 14px;
+        color: #999;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .notification-category:hover {
+        color: #2563eb;
+      }
+
+      .notification-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+      }
+
+      /* Notification Items */
+      .notification-item {
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        animation: fadeInUp 0.4s forwards;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
 
-        /* Main Content Area */
-        .main-content {
-            padding: 20px;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
-        /* Notification Page Styling */
-        .notification-page {
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            max-width: 900px;
-            margin: 50px auto;
-            display: block;
-            height: calc(100vh - 100px);
-            overflow-y: auto;
-            opacity: 0;
-            animation: fadeIn 0.5s forwards;
-        }
+      .notification-item.unread {
+        background-color: #e0f7fa;
+        border-left: 5px solid #00bcd4;
+      }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+      .notification-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
+      }
 
-            to {
-                opacity: 1;
-            }
-        }
+      .notification-item p {
+        font-size: 16px;
+        margin: 0;
+        flex: 1;
+      }
 
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+      .notification-time {
+        font-size: 12px;
+        color: #999;
+        margin-top: 5px;
+      }
 
-        .notification-header h2 {
-            font-size: 22px;
-            color: #333;
-        }
+      .notification-item .actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 10px;
+      }
 
-        .notification-category {
-            font-size: 14px;
-            color: #999;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+      .mark-unread,
+      .delete-notification {
+        padding: 5px 12px;
+        background-color: #f2f2f2;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
 
-        .notification-category:hover {
-            color: #2563eb;
-        }
+      .mark-unread:hover,
+      .delete-notification:hover {
+        background-color: #ddd;
+      }
 
-        .notification-list {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 15px;
+        transition: transform 0.2s ease;
+      }
 
-        /* Notification Items */
-        .notification-item {
-            background-color: #f9f9f9;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+      .notification-item .avatar:hover {
+        transform: scale(1.1);
+      }
 
-        .notification-item.unread {
-            background-color: #e0f7fa;
-            border-left: 5px solid #00bcd4;
-        }
+      /* Mark All Read Button */
+      .mark-all-read {
+        display: inline-block;
+        padding: 12px 18px;
+        background-color: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
 
-        .notification-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.15);
-        }
+      .mark-all-read:hover {
+        background-color: #1d4ed8;
+      }
 
-        .notification-item p {
-            font-size: 16px;
-            margin: 0;
-            flex: 1;
-        }
+      /* Search Bar */
+      .search-bar {
+        margin-bottom: 20px;
+        padding: 14px;
+        width: 100%;
+        max-width: 350px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+      }
 
-        .notification-time {
-            font-size: 12px;
-            color: #999;
-            margin-top: 5px;
-        }
+      .search-bar:focus {
+        border-color: #2563eb;
+        outline: none;
+      }
 
-        .notification-item .actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 10px;
-        }
+      /* Notification Badge */
+      .badge {
+        background-color: #ff4081;
+        color: white;
+        font-size: 10px;
+        padding: 3px 6px;
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
 
-        .mark-unread,
-        .delete-notification {
-            padding: 5px 12px;
-            background-color: #f2f2f2;
-            border: none;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+      /* Enhanced Empty State */
+      .empty-notifications {
+        text-align: center;
+        padding: 50px;
+        color: #999;
+        font-size: 16px;
+      }
 
-        .mark-unread:hover,
-        .delete-notification:hover {
-            background-color: #ddd;
-        }
+      /* Floating Action Button */
+      .fab {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #2563eb;
+        color: white;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.2s ease-in-out;
+      }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 15px;
-            transition: transform 0.2s ease;
-        }
+      .fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2);
+      }
 
-        .notification-item .avatar:hover {
-            transform: scale(1.1);
-        }
+      /* Sidebar Container */
+      .notification-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100vh;
+        background-color: #fff;
+        box-shadow: -3px 0 8px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+        transform: translateX(100%);
+        transition: transform 0.5s ease-out;
+      }
 
-        /* Mark All Read Button */
-        .mark-all-read {
-            display: inline-block;
-            padding: 12px 18px;
-            background-color: #2563eb;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
-        }
+      .notification-sidebar.open {
+        transform: translateX(0);
+      }
 
-        .mark-all-read:hover {
-            background-color: #1d4ed8;
-        }
+      .notification-sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        border-bottom: 1px solid #ddd;
+      }
 
-        /* Search Bar */
-        .search-bar {
-            margin-bottom: 20px;
-            padding: 14px;
-            width: 100%;
-            max-width: 350px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
+      .notification-sidebar-header h2 {
+        font-size: 18px;
+        color: #333;
+      }
 
-        .search-bar:focus {
-            border-color: #2563eb;
-            outline: none;
-        }
+      .notification-sidebar-header button {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #2563eb;
+      }
 
-        /* Notification Badge */
-        .badge {
-            background-color: #ff4081;
-            color: white;
-            font-size: 10px;
-            padding: 3px 6px;
-            border-radius: 50%;
-            position: absolute;
-            top: 0;
-            right: 0;
-        }
+      /* Scrollbar customization */
+      .notification-list::-webkit-scrollbar {
+        width: 6px;
+      }
 
-        /* Enhanced Empty State */
-        .empty-notifications {
-            text-align: center;
-            padding: 50px;
-            color: #999;
-            font-size: 16px;
-        }
+      .notification-list::-webkit-scrollbar-thumb {
+        background-color: #2563eb;
+        border-radius: 10px;
+      }
 
-        /* Floating Action Button */
-        .fab {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #2563eb;
-            color: white;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
+      /* Scroll indicator enhancement */
+      .scroll-indicator {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #2563eb, #4ade80);
+        border-radius: 10px;
+        transition: height 0.3s ease;
+        /* Smooth scroll indicator */
+      }
 
-        .fab:hover {
-            transform: scale(1.1);
-        }
+      /* Dark Mode */
+      body.dark-mode {
+        background-color: #2d2d2d;
+        color: #f1f1f1;
+      }
 
-        
+      body.dark-mode .notification-sidebar {
+        background-color: #3c3c3c;
+      }
+
+      body.dark-mode .notification-item {
+        background-color: #444;
+      }
+
+      body.dark-mode .notification-item:hover {
+        background-color: #555;
+      }
+
+      body.dark-mode .notification-footer button {
+        background-color: #444;
+      }
+
+      body.dark-mode .notification-footer button:hover {
+        background-color: #333;
+      }
+
+      .notification-footer button {
+        background: linear-gradient(90deg, #2563eb, #4ade80);
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+      }
+
+      .notification-footer button:hover {
+        background-color: #2563eb;
+      }
+
+      /* Smooth Body Transition */
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f5f7;
+        transition: background-color 0.5s ease, color 0.5s ease;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+
+      body.dark-mode {
+        background-color: #2c2c2c;
+        color: #f4f5f7;
+      }
+
+      /* Smooth Notification Item Animations */
+      .notification-item {
+        background-color: #ffffff;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      }
+
+      .notification-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Search Bar Focus */
+      .search-bar {
+        padding: 12px;
+        width: 100%;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+      }
+
+      .search-bar:focus {
+        border-color: #2563eb;
+        outline: none;
+      }
+
+      /* Dark Mode Button */
+      #toggleDarkMode {
+        background-color: #2563eb;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #toggleDarkMode:hover {
+        background-color: #1d4ed8;
+      }
+
+      /* Scroll Indicator */
+      .scroll-indicator {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 6px;
+        background: linear-gradient(180deg, #2563eb, #4ade80);
+        border-radius: 10px;
+        transition: height 0.3s ease;
+      }
+
+      /* Sidebar Animation */
+      .notification-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100%;
+        background-color: #fff;
+        box-shadow: -3px 0 8px rgba(0, 0, 0, 0.2);
+        transform: translateX(100%);
+        transition: transform 0.5s ease;
+      }
+
+      .notification-sidebar.open {
+        transform: translateX(0);
+      }
     </style>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div class="main-content">
-        <!-- Notification Page -->
-        <div class="notification-page" id="notificationPage">
-            <div class="notification-header">
-                <h2>Notifications</h2>
-                <div class="notification-category">All Notifications</div>
-            </div>
-
-            <input type="text" class="search-bar" id="searchInput" placeholder="Search notifications...">
-
-            <!-- Notifications List -->
-            <ul class="notification-list" id="notificationList">
-                <!-- Example Notifications -->
-                <li class="notification-item unread">
-                    <img src="https://i.pravatar.cc/150?img=3" alt="User" class="avatar">
-                    <p><strong>John Doe</strong> sent you a new message.</p>
-                    <span class="notification-time">2 minutes ago</span>
-                    <div class="actions">
-                        <button class="mark-unread">Mark as Unread</button>
-                        <button class="delete-notification">Delete</button>
-                    </div>
-                    <span class="badge">3</span> <!-- Notification Badge -->
-                </li>
-
-                <li class="notification-item">
-                    <img src="https://i.pravatar.cc/150?img=4" alt="User" class="avatar">
-                    <p><strong>Project Sync</strong> meeting reminder.</p>
-                    <span class="notification-time">10 minutes ago</span>
-                    <div class="actions">
-                        <button class="mark-unread">Mark as Unread</button>
-                        <button class="delete-notification">Delete</button>
-                    </div>
-                </li>
-
-                <li class="notification-item unread">
-                    <img src="https://i.pravatar.cc/150?img=5" alt="User" class="avatar">
-                    <p><strong>Sarah Lee</strong> commented on your post.</p>
-                    <span class="notification-time">1 hour ago</span>
-                    <div class="actions">
-                        <button class="mark-unread">Mark as Unread</button>
-                        <button class="delete-notification">Delete</button>
-                    </div>
-                </li>
-
-                <!-- System Notifications -->
-                <li class="notification-item">
-                    <img src="https://i.pravatar.cc/150?img=2" alt="User" class="avatar">
-                    <p><strong>System</strong> scheduled maintenance will begin in 2 hours.</p>
-                    <span class="notification-time">2 hours ago</span>
-                    <div class="actions">
-                        <button class="mark-unread">Mark as Unread</button>
-                        <button class="delete-notification">Delete</button>
-                    </div>
-                </li>
-
-                <!-- Event Reminders -->
-                <li class="notification-item unread">
-                    <img src="https://i.pravatar.cc/150?img=6" alt="User" class="avatar">
-                    <p><strong>Team Meeting</strong> tomorrow at 9 AM.</p>
-                    <span class="notification-time">6 hours ago</span>
-                    <div class="actions">
-                        <button class="mark-unread">Mark as Unread</button>
-                        <button class="delete-notification">Delete</button>
-                    </div>
-                </li>
-
-                <!-- Empty State Message -->
-                <div class="empty-notifications" style="display: none;">
-                    <p>No notifications available at the moment!</p>
-                </div>
-            </ul>
-
-            <a href="#" class="mark-all-read">Mark All as Read</a>
+      <!-- Notification Page -->
+      <div class="notification-page" id="notificationPage">
+        <div class="notification-header">
+          <h2>Notifications</h2>
+          <div class="notification-category">All Notifications</div>
         </div>
+
+        <input
+          type="text"
+          class="search-bar"
+          id="searchInput"
+          placeholder="Search notifications..."
+        />
+
+        <!-- Notifications List -->
+        <ul class="notification-list" id="notificationList">
+          <!-- Example Notifications -->
+          <li class="notification-item unread">
+            <img
+              src="https://i.pravatar.cc/150?img=3"
+              alt="User"
+              class="avatar"
+            />
+            <p><strong>John Doe</strong> sent you a new message.</p>
+            <span class="notification-time">2 minutes ago</span>
+            <div class="actions">
+              <button class="mark-unread">Mark as Unread</button>
+              <button class="delete-notification">Delete</button>
+            </div>
+            <span class="badge">3</span>
+          </li>
+
+          <li class="notification-item">
+            <img
+              src="https://i.pravatar.cc/150?img=4"
+              alt="User"
+              class="avatar"
+            />
+            <p><strong>Project Sync</strong> meeting reminder.</p>
+            <span class="notification-time">10 minutes ago</span>
+            <div class="actions">
+              <button class="mark-unread">Mark as Unread</button>
+              <button class="delete-notification">Delete</button>
+            </div>
+          </li>
+
+          <li class="notification-item unread">
+            <img
+              src="https://i.pravatar.cc/150?img=5"
+              alt="User"
+              class="avatar"
+            />
+            <p><strong>Sarah Lee</strong> commented on your post.</p>
+            <span class="notification-time">1 hour ago</span>
+            <div class="actions">
+              <button class="mark-unread">Mark as Unread</button>
+              <button class="delete-notification">Delete</button>
+            </div>
+          </li>
+
+          <!-- System Notifications -->
+          <li class="notification-item">
+            <img
+              src="https://i.pravatar.cc/150?img=2"
+              alt="User"
+              class="avatar"
+            />
+            <p>
+              <strong>System</strong> scheduled maintenance will begin in 2
+              hours.
+            </p>
+            <span class="notification-time">2 hours ago</span>
+            <div class="actions">
+              <button class="mark-unread">Mark as Unread</button>
+              <button class="delete-notification">Delete</button>
+            </div>
+          </li>
+
+          <!-- Event Reminders -->
+          <li class="notification-item unread">
+            <img
+              src="https://i.pravatar.cc/150?img=6"
+              alt="User"
+              class="avatar"
+            />
+            <p><strong>Team Meeting</strong> tomorrow at 9 AM.</p>
+            <span class="notification-time">6 hours ago</span>
+            <div class="actions">
+              <button class="mark-unread">Mark as Unread</button>
+              <button class="delete-notification">Delete</button>
+            </div>
+          </li>
+
+          <!-- Empty State Message -->
+          <div class="empty-notifications" style="display: none">
+            <p>No notifications available at the moment!</p>
+          </div>
+        </ul>
+
+        <a href="#" class="mark-all-read">Mark All as Read</a>
+      </div>
     </div>
+
+    <!-- Notification Sidebar -->
+    <div class="notification-sidebar" id="notificationSidebar">
+      <div class="notification-sidebar-header">
+        <h2>Notifications</h2>
+        <button id="toggleDarkMode">Dark Mode</button>
+      </div>
+      <ul class="notification-list" id="sidebarNotificationList">
+        <!-- Example Notifications -->
+        <li class="notification-item">
+          <p><strong>John Doe</strong> sent you a message.</p>
+          <span class="time">2 minutes ago</span>
+        </li>
+        <li class="notification-item">
+          <p><strong>Project Sync</strong> meeting reminder.</p>
+          <span class="time">10 minutes ago</span>
+        </li>
+        <li class="notification-item">
+          <p>
+            <strong>System</strong> scheduled maintenance will begin in 2 hours.
+          </p>
+          <span class="time">2 hours ago</span>
+        </li>
+      </ul>
+      <div class="notification-footer">
+        <button id="markAllRead">Mark All Read</button>
+        <button id="clearNotifications">Clear All</button>
+      </div>
+    </div>
+
+    <div class="scroll-indicator" id="scrollIndicator"></div>
+
+    <!-- Notification Toggle Button -->
+    <button id="toggleSidebar" style="position: fixed; top: 20px; right: 20px">
+      Notifications
+    </button>
 
     <!-- Floating Action Button -->
     <div class="fab" id="fab">+</div>
 
-
+    <!-- Include GSAP and jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        
+      // Mark all notifications as read
+      document
+        .querySelector(".mark-all-read")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const notifications = document.querySelectorAll(
+            ".notification-item.unread"
+          );
+          notifications.forEach((notification) => {
+            notification.classList.remove("unread");
+            gsap.to(notification, { opacity: 0.7, duration: 0.3 });
+          });
+        });
 
-        // Mark all notifications as read
-        document.querySelector(".mark-all-read").addEventListener("click", function (e) {
-            e.preventDefault();
-            const notifications = document.querySelectorAll(".notification-item.unread");
-            notifications.forEach(notification => {
-                notification.classList.remove("unread");
+      // Mark a notification as unread
+      document.querySelectorAll(".mark-unread").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          const notification = e.target.closest(".notification-item");
+          notification.classList.add("unread");
+          gsap.to(notification, { opacity: 1, duration: 0.3 });
+        });
+      });
+
+      // Delete a notification
+      document.querySelectorAll(".delete-notification").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          const notification = e.target.closest(".notification-item");
+          // Fade out and remove notification
+          gsap.to(notification, {
+            opacity: 0,
+            y: -20,
+            duration: 0.4,
+            onComplete: () => notification.remove(),
+          });
+          if (document.querySelectorAll(".notification-item").length === 0) {
+            document.querySelector(".empty-notifications").style.display =
+              "block";
+          }
+        });
+      });
+
+      // Search functionality with a smoother transition
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const notifications = document.querySelectorAll(".notification-item");
+          notifications.forEach((notification) => {
+            const text = notification.innerText.toLowerCase();
+            gsap.to(notification, {
+              opacity: text.includes(searchTerm) ? 1 : 0,
+              duration: 0.3,
             });
+          });
         });
 
-        // Mark a notification as unread
-        document.querySelectorAll(".mark-unread").forEach(button => {
-            button.addEventListener("click", function (e) {
-                const notification = e.target.closest(".notification-item");
-                notification.classList.add("unread");
-            });
+      // Floating Action Button (FAB) hover effect using jQuery
+      $("#fab").on("click", function () {
+        $(this).toggleClass("active");
+        gsap.to($(this), { scale: 1.1, duration: 0.2, ease: "bounce" }); // Smooth scale effect
+      });
+
+      // Sidebar toggle with smooth GSAP animation
+      const sidebar = document.getElementById("notificationSidebar");
+      const toggleSidebar = document.getElementById("toggleSidebar");
+      const scrollIndicator = document.getElementById("scrollIndicator");
+      const notificationList = document.getElementById("notificationList");
+      const toggleDarkMode = document.getElementById("toggleDarkMode");
+
+      // Add notification with smooth animation
+      function addNotification(message, time) {
+        const newNotification = document.createElement("li");
+        newNotification.className = "notification-item";
+        newNotification.innerHTML = `
+        <p><strong>${message}</strong></p>
+        <span class="time">${time}</span>
+    `;
+        newNotification.style.opacity = 0;
+        newNotification.style.transform = "translateY(-20px)";
+        document.getElementById("notificationList").prepend(newNotification);
+
+        // GSAP animation for the new notification
+        gsap.to(newNotification, { opacity: 1, y: 0, duration: 0.5 });
+      }
+
+      // Example usage: Add new notification
+      addNotification("New comment on your post!", "Just now");
+
+      // Toggle sidebar visibility with smooth GSAP animation
+      toggleSidebar.addEventListener("click", () => {
+        if (sidebar.classList.contains("open")) {
+          gsap.to(sidebar, { x: "100%", duration: 0.4 });
+          setTimeout(() => (sidebar.style.display = "none"), 400); // Wait for animation to complete
+        } else {
+          sidebar.style.display = "flex";
+          gsap.to(sidebar, { x: 0, duration: 0.4 });
+        }
+      });
+
+      // Mark all notifications as read using GSAP animation
+      document.getElementById("markAllRead").addEventListener("click", () => {
+        document.querySelectorAll(".notification-item").forEach((item) => {
+          item.classList.remove("expanded");
+          gsap.to(item, { backgroundColor: "#f0f0f0", duration: 0.3 });
+        });
+      });
+
+      // Clear all notifications with fade-out animation
+      document
+        .getElementById("clearNotifications")
+        .addEventListener("click", () => {
+          gsap.to(notificationList, {
+            opacity: 0,
+            duration: 0.4,
+            onComplete: () => {
+              notificationList.innerHTML =
+                '<p style="text-align: center; color: #999;">No notifications available.</p>';
+              gsap.to(notificationList, { opacity: 1, duration: 0.4 });
+            },
+          });
         });
 
-        // Delete a notification
-        document.querySelectorAll(".delete-notification").forEach(button => {
-            button.addEventListener("click", function (e) {
-                const notification = e.target.closest(".notification-item");
-                notification.remove();
-                if (document.querySelectorAll(".notification-item").length === 0) {
-                    document.querySelector(".empty-notifications").style.display = "block";
-                }
-            });
+      // Expand/collapse notification items with smooth animation
+      document.querySelectorAll(".notification-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          item.classList.toggle("expanded");
+          if (item.classList.contains("expanded")) {
+            gsap.to(item, { height: "200px", duration: 0.3 });
+          } else {
+            gsap.to(item, { height: "60px", duration: 0.3 });
+          }
         });
+      });
 
-        // Search functionality
-        document.getElementById("searchInput").addEventListener("input", function (e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const notifications = document.querySelectorAll(".notification-item");
-            notifications.forEach(notification => {
-                const text = notification.innerText.toLowerCase();
-                notification.style.display = text.includes(searchTerm) ? "block" : "none";
-            });
+      // Dark mode toggle with smooth transition
+      toggleDarkMode.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        gsap.to("body", {
+          backgroundColor: document.body.classList.contains("dark-mode")
+            ? "#121212"
+            : "#fff",
+          duration: 0.5,
         });
+        gsap.to("button", {
+          color: document.body.classList.contains("dark-mode")
+            ? "#fff"
+            : "#000",
+          duration: 0.5,
+        });
+      });
 
-        // Floating Action Button hover effect
-        document.getElementById("fab").addEventListener("click", function () {
-            alert("You clicked the FAB!");
+      // Scroll indicator functionality with smooth updates
+      notificationList.addEventListener("scroll", () => {
+        const scrollHeight =
+          notificationList.scrollHeight - notificationList.clientHeight;
+        const scrollTop = notificationList.scrollTop;
+        const scrollPercentage = (scrollTop / scrollHeight) * 100;
+        gsap.to(scrollIndicator, {
+          height: `${scrollPercentage}%`,
+          duration: 0.3,
         });
+      });
     </script>
-
-</body>
-
+  </body>
 </html>
