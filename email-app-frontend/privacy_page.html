@@ -120,6 +120,13 @@
             color: red;
             display: none;
         }
+
+        /* Password Strength Indicator */
+        #passwordStrength {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #28a745;
+        }
     </style>
 </head>
 <body>
@@ -138,7 +145,7 @@
                 </div>
                 <div class="privacy-setting-item">
                     <span>Enable 2-factor authentication</span>
-                    <input type="checkbox" id="enable2FA">
+                    <input type="checkbox" id="enable2FA" title="Enable an extra layer of security with two-factor authentication.">
                 </div>
 
                 <!-- Spam and Phishing Protection -->
@@ -166,6 +173,16 @@
                     <span>Control Notification Visibility</span>
                     <input type="checkbox" id="notificationVisibility">
                 </div>
+
+                <!-- Additional Privacy Features -->
+                <div class="privacy-setting-item">
+                    <span>Enable IP Address Tracking</span>
+                    <input type="checkbox" id="enableIPTracking">
+                </div>
+                <div class="privacy-setting-item">
+                    <span>Clear Session History</span>
+                    <button class="btn btn-danger" id="clearSessionHistoryBtn">Clear</button>
+                </div>
             </div>
 
             <div class="footer">
@@ -188,6 +205,7 @@
                     <div id="currentPasswordError" class="error-message">Current password is incorrect!</div>
                     <label for="newPassword">New Password</label>
                     <input type="password" id="newPassword" class="form-control" required>
+                    <div id="passwordStrength">Strength: Weak</div>
                     <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" class="form-control" required>
                     <div id="passwordError" class="error-message">Passwords do not match!</div>
@@ -227,7 +245,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Here are the Terms and Conditions...</p>
+                    <p>Here are our Terms and Conditions...</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -236,38 +254,81 @@
         </div>
     </div>
 
-    <!-- Bootstrap and JavaScript -->
+    <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // Handle password change logic
-        document.getElementById('savePasswordBtn').addEventListener('click', function() {
-            var currentPassword = document.getElementById('currentPassword').value;
-            var newPassword = document.getElementById('newPassword').value;
-            var confirmPassword = document.getElementById('confirmPassword').value;
+        $(document).ready(function () {
+            // Close Privacy Page
+            $('#closePrivacyPage').click(function() {
+                $('.privacy-page').fadeOut();
+            });
 
-            var predefinedPassword = "yourPredefinedPassword"; // This should be fetched from the server
+            // Password strength feedback
+            $('#newPassword').on('input', function() {
+                const password = $(this).val();
+                const strengthText = document.getElementById("passwordStrength");
+                if (password.length < 6) {
+                    strengthText.textContent = "Strength: Weak";
+                    strengthText.style.color = "red";
+                } else {
+                    strengthText.textContent = "Strength: Strong";
+                    strengthText.style.color = "green";
+                }
+            });
 
-            // Check if the current password matches
-            if (currentPassword !== predefinedPassword) {
-                document.getElementById('currentPasswordError').style.display = 'block';
-            } else {
-                document.getElementById('currentPasswordError').style.display = 'none';
-            }
+            // Password Change Validation
+            $('#savePasswordBtn').click(function() {
+                const currentPassword = $('#currentPassword').val();
+                const newPassword = $('#newPassword').val();
+                const confirmPassword = $('#confirmPassword').val();
+                const currentPasswordError = $('#currentPasswordError');
+                const passwordError = $('#passwordError');
 
-            // Check if new passwords match
-            if (newPassword !== confirmPassword) {
-                document.getElementById('passwordError').style.display = 'block';
-            } else {
-                document.getElementById('passwordError').style.display = 'none';
-                // Add your password save logic here (send to the server)
-                alert("Password has been changed successfully!");
-                $('#changePasswordModal').modal('hide');
-            }
-        });
-        
-        // Close the privacy settings page
-        document.getElementById('closePrivacyPage').addEventListener('click', function() {
-            window.history.back();
+                if (currentPassword !== "correctPassword") {
+                    currentPasswordError.show();
+                } else {
+                    currentPasswordError.hide();
+                }
+
+                if (newPassword !== confirmPassword) {
+                    passwordError.show();
+                } else {
+                    passwordError.hide();
+                    alert("Password successfully changed.");
+                    $('#changePasswordModal').modal('hide');
+                }
+            });
+
+            // Clear Session History Action
+            $('#clearSessionHistoryBtn').click(function() {
+                alert("Session history cleared.");
+            });
+
+            // Toggle Features (2FA, Spam Filtering, etc.)
+            $('#enable2FA').change(function() {
+                if (this.checked) {
+                    alert("2FA enabled.");
+                } else {
+                    alert("2FA disabled.");
+                }
+            });
+
+            $('#enableSpamFilter').change(function() {
+                if (this.checked) {
+                    alert("Spam filtering enabled.");
+                } else {
+                    alert("Spam filtering disabled.");
+                }
+            });
+
+            $('#enablePhishingProtection').change(function() {
+                if (this.checked) {
+                    alert("Phishing protection enabled.");
+                } else {
+                    alert("Phishing protection disabled.");
+                }
+            });
         });
     </script>
 </body>

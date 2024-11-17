@@ -1,787 +1,1039 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Email App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced Email App</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-  
-
-  
-  <style>
-    /* Base Styles */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f7fafc;
-      color: #333;
-      transition: background-color 0.4s ease, color 0.4s ease;
-      min-height: 100vh;
-      height: 100%;
-      overflow-x: hidden;
-    }
-
-    .loading-spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top-color: #4CAF50;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
+    <style>
+      /* Base Styles */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
-      100% {
-        transform: rotate(360deg);
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #f7fafc;
+        color: #333;
+        transition: background-color 0.4s ease, color 0.4s ease;
+        min-height: 100vh;
+        height: 100%;
+        overflow-x: hidden;
       }
-    }
 
-    .toast {
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      background-color: #4CAF50;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 16px;
-      opacity: 0;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      transform: translateY(20px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
+      .loading-spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #4caf50;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 0.8s linear infinite;
+      }
 
-    .toast.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+      .hidden {
+        display: none;
+      }
 
-    .search-suggestions {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      z-index: 100;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
 
-    html {
-      scroll-behavior: smooth;
-      height: 100%;
-    }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-    .language-card {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    .language-card:hover {
-      transform: scale(1.05);
-    }
-
-    .fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      0% {
+      .toast {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        background-color: #4caf50;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-size: 16px;
         opacity: 0;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .slide-in {
-      animation: slideIn 0.5s ease-in-out;
-    }
-
-    @keyframes slideIn {
-      0% {
-        transform: translateX(100%);
-      }
-
-      100% {
-        transform: translateX(0);
-      }
-    }
-
-    /* Light Mode Styles */
-    header {
-      background-color: #3182ce;
-      transition: background-color 0.4s ease;
-    }
-
-    aside {
-      background-color: #fff;
-      transition: background-color 0.4s ease, border-color 0.4s ease;
-    }
-
-    button {
-      background-color: #edf2f7;
-      color: #333;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    input,
-    textarea {
-      background-color: #fff;
-      color: #333;
-      border: 1px solid #ccc;
-      padding: 8px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-
-    /* Dark Mode Styles */
-    body.dark {
-      background-color: #1a202c;
-      color: #e2e8f0;
-    }
-
-    header.dark {
-      background-color: #2d3748;
-    }
-
-    aside.dark {
-      background-color: #2d3748;
-      border-color: #4a5568;
-    }
-
-    button.dark {
-      background-color: #4a5568;
-      color: #e2e8f0;
-    }
-
-    input.dark,
-    textarea.dark {
-      background-color: #4a5568;
-      color: #e2e8f0;
-      border-color: #4a5568;
-    }
-
-    .toast.dark {
-      background-color: #2d3748;
-      color: #e2e8f0;
-    }
-
-    /* Full-Screen Dark Mode Overlay */
-    .dark-mode-fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(26, 32, 44, 0.95);
-      z-index: 9999;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      display: none;
-    }
-
-    .dark-mode-fullscreen.visible {
-      display: block;
-      opacity: 1;
-    }
-
-    /* Dark mode button styling */
-    .dark-mode-btn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 18px;
-      z-index: 10000;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .dark-mode-btn:hover {
-      background-color: rgba(0, 0, 0, 0.85);
-      transform: scale(1.1);
-      /* Slightly enlarge button on hover */
-    }
-
-    .dark-mode-btn:active {
-      background-color: rgba(0, 0, 0, 0.9);
-      transform: scale(1);
-      /* Reset scale when clicked */
-    }
-
-    .dark-mode-btn:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
-    }
-
-    /* Button Hover Effects */
-    button:hover {
-      background-color: #d1d8e0;
-      color: #1a202c;
-    }
-
-    button.dark:hover {
-      background-color: #5a6678;
-      color: #f7fafc;
-    }
-
-    /* Smooth Transition */
-    body,
-    header,
-    aside,
-    button,
-    input,
-    textarea,
-    .toast {
-      transition: all 0.3s ease-in-out;
-    }
-
-    /* Highlighted Focus */
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: #3182ce;
-      box-shadow: 0 0 5px rgba(49, 130, 206, 0.5);
-    }
-
-    /* Card Styles */
-    .card {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Animations for Toasts */
-    @keyframes slideUp {
-      from {
-        opacity: 0;
+        transition: opacity 0.4s ease, transform 0.4s ease;
         transform: translateY(20px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       }
 
-      to {
+      .toast.visible {
         opacity: 1;
         transform: translateY(0);
       }
-    }
 
-    .toast {
-      animation: slideUp 0.5s ease;
-    }
+      .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        z-index: 100;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 5px 0;
+        margin-top: 5px; /* Adds spacing between input and suggestions */
+        opacity: 0;
+        visibility: hidden; /* Initially hidden for better control */
+        transform: translateY(-10px); /* Starts off slightly above */
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease; /* Smooth fade-in and slide-in effect */
+      }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
+      .search-suggestions.visible {
+        opacity: 1;
+        visibility: visible; /* Makes the suggestions visible */
+        transform: translateY(0); /* Slide suggestions into place */
+      }
 
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
+      .search-suggestions a {
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        transition: background-color 0.3s ease, padding-left 0.3s ease;
+      }
 
-    ::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 4px;
-    }
+      .search-suggestions a:hover {
+        background-color: #3182ce; /* Highlight color */
+        color: white;
+        padding-left: 20px; /* Slight indentation on hover for better feedback */
+      }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: #555;
-    }
+      .search-suggestions a:active {
+        background-color: #2b6cb0; /* Darker hover when clicked */
+      }
 
-    /* Add More Styling for Cards and Buttons */
-    .btn-primary {
-      background-color: #3182ce;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 5px;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
+      html {
+        scroll-behavior: smooth;
+        height: 100%;
+      }
 
-    .btn-primary:hover {
-      background-color: #2b6cb0;
-      transform: translateY(-2px);
-    }
+      .language-card {
+        transition: transform 0.3s ease-in-out;
+      }
 
-    /* General Settings Page Styles */
-    #general-settings-page {
-      max-width: 600px;
-      margin: 2rem auto;
-    }
+      .language-card:hover {
+        transform: scale(1.05);
+      }
 
-    .hidden {
-      display: none;
-    }
+      .fade-in {
+        animation: fadeIn 0.3s ease-out;
+      }
 
-    input,
-    textarea,
-    select {
-      transition: border-color 0.3s ease;
-    }
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
 
-    input:focus,
-    textarea:focus,
-    select:focus {
-      border-color: #2563eb;
-      /* Blue */
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-      /* Blue Glow */
-    }
+        100% {
+          opacity: 1;
+        }
+      }
 
-    button {
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
+      .slide-in {
+        animation: slideIn 0.5s ease-in-out;
+      }
 
-    button:hover {
-      transform: scale(1.05);
-    }
+      @keyframes slideIn {
+        0% {
+          transform: translateX(100%);
+        }
 
-    /* Account Page Styles */
-    #account-page {
-      max-width: 600px;
-      margin: 2rem auto;
-    }
+        100% {
+          transform: translateX(0);
+        }
+      }
 
-    .hidden {
-      display: none;
-    }
+      /* Light Mode Styles */
+      header {
+        background-color: #3182ce;
+        transition: background-color 0.4s ease;
+      }
 
-    input,
-    select {
-      transition: border-color 0.3s ease;
-    }
+      aside {
+        background-color: #fff;
+        transition: background-color 0.4s ease, border-color 0.4s ease;
+      }
 
-    input:focus,
-    select:focus {
-      border-color: #2563eb;
-      /* Blue */
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-      /* Blue Glow */
-    }
+      button {
+        background-color: #edf2f7;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
 
-    button {
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
+      input,
+      textarea {
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, color 0.3s ease,
+          border-color 0.3s ease;
+      }
 
-    /* Account Page Styles */
-    #account-page {
-      max-width: 600px;
-      margin: 2rem auto;
-    }
+      /* Dark Mode Styles */
+      body.dark {
+        background-color: #1a202c;
+        color: #e2e8f0;
+      }
 
-    .hidden {
-      display: none;
-    }
+      header.dark {
+        background-color: #2d3748;
+      }
 
-    input,
-    select {
-      transition: border-color 0.3s ease;
-    }
+      aside.dark {
+        background-color: #2d3748;
+        border-color: #4a5568;
+      }
 
-    input:focus,
-    select:focus {
-      border-color: #2563eb;
-      /* Blue */
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-      /* Blue Glow */
-    }
+      button.dark {
+        background-color: #4a5568;
+        color: #e2e8f0;
+      }
 
-    button {
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
+      input.dark,
+      textarea.dark {
+        background-color: #4a5568;
+        color: #e2e8f0;
+        border-color: #4a5568;
+      }
 
-    button:hover {
-      transform: scale(1.05);
-    }
-  </style>
+      .toast.dark {
+        background-color: #2d3748;
+        color: #e2e8f0;
+      }
 
-</head>
+      /* Full-Screen Dark Mode Overlay */
+      .dark-mode-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(26, 32, 44, 0.95);
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        display: none;
+      }
 
+      .dark-mode-fullscreen.visible {
+        display: block;
+        opacity: 1;
+      }
 
+      /* Dark mode button styling */
+      .dark-mode-btn {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 12px 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        z-index: 10000;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
 
-<body class="bg-gray-100 transition duration-500" id="app-body">
-  <div class="min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-lg">
-      <div class="text-2xl font-bold">Advanced Email App</div>
-      <div class="flex items-center space-x-4">
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition transform hover:scale-105"
-          onclick="toggleComposeModal()">
-          <i class="fas fa-plus"></i> Compose
-        </button>
+      .dark-mode-btn:hover {
+        background-color: rgba(0, 0, 0, 0.85);
+        transform: scale(1.1);
+        /* Slightly enlarge button on hover */
+      }
 
-        <!-- Dark Mode Toggle -->
-        <button id="theme-toggle" onclick="toggleDarkMode()"
-          class="bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full shadow-md transition transform hover:scale-105">
-          <i class="fas fa-moon"></i> <!-- Default icon for dark mode -->
-        </button>
+      .dark-mode-btn:active {
+        background-color: rgba(0, 0, 0, 0.9);
+        transform: scale(1);
+        /* Reset scale when clicked */
+      }
 
-        <div class="relative">
-          <input id="search-input" class="rounded-full py-2 px-4 pl-10 focus:outline-none shadow-md"
-            placeholder="Search..." type="text" oninput="showSuggestions()" />
-          <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
-          <div id="search-suggestions" class="absolute bg-white shadow-lg rounded w-full mt-2 hidden"></div>
-        </div>
+      .dark-mode-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+      }
 
-        <!-- Profile Dropdown -->
-        <div class="relative">
-          <img alt="Profile"
-            class="rounded-full w-10 h-10 shadow-md cursor-pointer transition transform hover:scale-105"
-            src="https://storage.googleapis.com/a1aa/image/UtOj8zEntC5qK9rWZiqJDoNfCNUr1Hh9669WXH6vdbLSemwTA.jpg"
-            onclick="toggleProfileMenu()" />
-          <div id="profile-menu"
-            class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition transform hover:scale-105">
-            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Account</a>
-            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">Settings</a>
-            <a href="#" class="block px-4 py-2 text-red-500 hover:bg-red-100">Logout</a>
-          </div>
-        </div>
-      </div>
-    </header>
+      /* Button Hover Effects */
+      button:hover {
+        background-color: #d1d8e0;
+        color: #1a202c;
+      }
 
-    <div id="general-settings-page" class="hidden bg-white shadow rounded-lg p-6">
-      <h2 class="text-2xl font-bold mb-4">General Settings</h2>
-      <form>
-        <div class="mb-4">
-          <label for="display-name" class="block text-sm font-medium text-gray-700">Display Name</label>
-          <input type="text" id="display-name" class="w-full p-2 border rounded-lg"
-            placeholder="Enter your display name" />
-        </div>
-        <div class="mb-4">
-          <label for="email-signature" class="block text-sm font-medium text-gray-700">Email Signature</label>
-          <textarea id="email-signature" class="w-full p-2 border rounded-lg"
-            placeholder="Enter your email signature"></textarea>
-        </div>
-        <div class="mb-4">
-          <label for="language" class="block text-sm font-medium text-gray-700">Preferred Language</label>
-          <select id="language" class="w-full p-2 border rounded-lg">
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <!-- Add more options as needed -->
-          </select>
-        </div>
-        <div class="mb-4">
-          <label for="timezone" class="block text-sm font-medium text-gray-700">Timezone</label>
-          <select id="timezone" class="w-full p-2 border rounded-lg">
-            <option value="utc">UTC</option>
-            <option value="pst">Pacific Standard Time (PST)</option>
-            <option value="est">Eastern Standard Time (EST)</option>
-            <!-- Add more options as needed -->
-          </select>
-        </div>
-        <div class="flex justify-end">
-          <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full mr-2"
-            onclick="cancelSettings()">Cancel</button>
-          <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-full"
-            onclick="saveSettings()">Save</button>
-        </div>
-      </form>
-    </div>
+      button.dark:hover {
+        background-color: #5a6678;
+        color: #f7fafc;
+      }
 
-    <!-- Main Content -->
-    <div class="flex flex-1">
-      <!-- Sidebar Section -->
-      <aside class="w-64 bg-white p-4 border-r shadow-lg transition duration-300 ease-in-out hover:bg-gray-50"
-        id="sidebar">
-        <nav class="space-y-2">
-          <a class="flex items-center p-2 text-gray-700 hover:bg-blue-100 rounded transition duration-200" href="#"><i
-              class="fas fa-inbox mr-3 text-blue-500"></i> Inbox</a>
-          <a class="flex items-center p-2 text-gray-700 hover:bg-yellow-100 rounded transition duration-200" href="#"><i
-              class="fas fa-star mr-3 text-yellow-500"></i> Starred</a>
-          <a class="flex items-center p-2 text-gray-700 hover:bg-green-100 rounded transition duration-200" href="#"><i
-              class="fas fa-paper-plane mr-3 text-green-500"></i> Sent</a>
-          <a class="flex items-center p-2 text-gray-700 hover:bg-red-100 rounded transition duration-200" href="#"><i
-              class="fas fa-trash mr-3 text-red-500"></i> Trash</a>
-          <a class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200" href="#"><i
-              class="fas fa-archive mr-3"></i> Archive</a>
-          <a class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200" href="#"><i
-              class="fas fa-folder mr-3"></i> Folders</a>
+      /* Smooth Transition */
+      body,
+      header,
+      aside,
+      button,
+      input,
+      textarea,
+      .toast {
+        transition: all 0.3s ease-in-out;
+      }
 
-          <!-- Settings with Dropdown -->
+      /* Highlighted Focus */
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #3182ce;
+        box-shadow: 0 0 5px rgba(49, 130, 206, 0.5);
+      }
+
+      /* Card Styles */
+      .card {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Animations for Toasts */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .toast {
+        animation: slideUp 0.5s ease;
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      /* Add More Styling for Cards and Buttons */
+      .btn-primary {
+        background-color: #3182ce;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #2b6cb0;
+        transform: translateY(-2px);
+      }
+
+      /* General Settings Page Styles */
+      #general-settings-page {
+        max-width: 600px;
+        margin: 2rem auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      input,
+      textarea,
+      select {
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #2563eb;
+        /* Blue */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        /* Blue Glow */
+      }
+
+      button {
+        transition: transform 0.2s ease, background-color 0.2s ease;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+
+      /* Account Page Styles */
+      #account-page {
+        max-width: 600px;
+        margin: 2rem auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      input,
+      select {
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: #2563eb;
+        /* Blue */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        /* Blue Glow */
+      }
+
+      button {
+        transition: transform 0.2s ease, background-color 0.2s ease;
+      }
+
+      /* Account Page Styles */
+      #account-page {
+        max-width: 600px;
+        margin: 2rem auto;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      input,
+      select {
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: #2563eb;
+        /* Blue */
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        /* Blue Glow */
+      }
+
+      button {
+        transition: transform 0.2s ease, background-color 0.2s ease;
+      }
+
+      button:hover {
+        transform: scale(1.05);
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 transition duration-500" id="app-body">
+    <div class="min-h-screen flex flex-col">
+      <!-- Header -->
+      <header
+        class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-lg"
+      >
+        <div class="text-2xl font-bold">Advanced Email App</div>
+        <div class="flex items-center space-x-4">
+          <button
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition transform hover:scale-105"
+            onclick="toggleComposeModal()"
+          >
+            <i class="fas fa-plus"></i> Compose
+          </button>
+
+          <!-- Dark Mode Toggle -->
+
+          <button
+            id="theme-toggle"
+            onclick="toggleDarkMode()"
+            class="bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full shadow-md transition transform hover:scale-105"
+          >
+            <i class="fas fa-moon"></i>
+            <!-- Default icon for dark mode -->
+          </button>
+
           <div class="relative">
-            <a class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200 cursor-pointer"
-              onclick="toggleSettingsDropdown()">
-              <i class="fas fa-cog mr-3"></i> Settings
-            </a>
-            <div id="settings-dropdown"
-              class="absolute left-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition-all transform">
-              <a href="general-settings.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">General</a>
-              <a href="notification_page.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Notifications</a>
-              <a href="privacy_page.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Privacy Settings</a>              
-              <a href="account_page.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Account</a>
-              <div id="settings-dropdown"
-                class="absolute left-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition-all transform">
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  onclick="toggleGeneralPage()">General</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  onclick="toggleAccountPage()">Account</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Privacy</a>
-              </div>
+            <input
+              id="search-input"
+              class="rounded-full py-2 px-4 pl-10 focus:outline-none shadow-md"
+              placeholder="Search..."
+              type="text"
+              oninput="showSuggestions()"
+            />
+            <i class="fas fa-search absolute left-3 top-3 text-gray-500"></i>
+            <div
+              id="search-suggestions"
+              class="absolute bg-white shadow-lg rounded w-full mt-2 hidden"
+            ></div>
+          </div>
 
+          <!-- Profile Dropdown -->
+          <div class="relative">
+            <img
+              alt="Profile"
+              class="rounded-full w-10 h-10 shadow-md cursor-pointer transition transform hover:scale-105"
+              src="https://storage.googleapis.com/a1aa/image/UtOj8zEntC5qK9rWZiqJDoNfCNUr1Hh9669WXH6vdbLSemwTA.jpg"
+              onclick="toggleProfileMenu()"
+            />
+            <div
+              id="profile-menu"
+              class="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition transform hover:scale-105"
+            >
+              <a
+                href="#"
+                class="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                >Account</a
+              >
+              <a
+                href="#"
+                class="block px-4 py-2 text-gray-700 hover:bg-gray-200"
+                >Settings</a
+              >
+              <a href="#" class="block px-4 py-2 text-red-500 hover:bg-red-100"
+                >Logout</a
+              >
             </div>
-          </div>
-        </nav>
-      </aside>
-
-      <!-- Email List -->
-      <main class="flex-1 p-4 relative">
-        <div id="loading-spinner" class="loading-spinner hidden absolute inset-0 flex justify-center items-center">
-          <div class="w-8 h-8 border-4 border-blue-500 rounded-full animate-spin"></div>
-        </div>
-        <div class="bg-white shadow rounded-lg p-4 relative">
-          <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 class="text-xl font-bold">Inbox</h2>
-            <div class="flex space-x-2">
-              <button
-                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"
-                onclick="fetchEmails()"><i class="fas fa-sync-alt"></i></button>
-              <button
-                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"><i
-                  class="fas fa-ellipsis-v"></i></button>
-            </div>
-          </div>
-          <!-- Bulk Actions -->
-          <div class="flex justify-between items-center mb-4">
-            <div class="flex space-x-2">
-              <button
-                class="bg-blue-200 hover:bg-blue-300 text-blue-700 py-1 px-3 rounded-full transition transform hover:scale-105"
-                onclick="markAsRead()"><i class="fas fa-envelope-open"></i> Mark as Read</button>
-              <button
-                class="bg-red-200 hover:bg-red-300 text-red-700 py-1 px-3 rounded-full transition transform hover:scale-105"
-                onclick="deleteEmails()"><i class="fas fa-trash"></i> Delete</button>
-              <button
-                class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full transition transform hover:scale-105"
-                onclick="archiveEmails()"><i class="fas fa-archive"></i> Archive</button>
-            </div>
-            <span class="text-sm text-gray-500">2 unread emails</span>
-          </div>
-          <ul id="email-list" class="space-y-4">
-            <!-- Emails dynamically inserted here -->
-          </ul>
-        </div>
-      </main>
-
-      <!-- Email Details -->
-      <aside class="w-96 bg-white p-4 border-l shadow-lg hidden md:block" id="email-details-panel">
-        <div class="bg-white shadow rounded-lg p-4">
-          <div class="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 class="text-xl font-bold">Email Details</h2>
-            <div class="flex space-x-2">
-              <button
-                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"><i
-                  class="fas fa-arrow-left"></i> Back</button>
-            </div>
-          </div>
-          <div id="email-details-content">
-            <!-- Email details dynamically inserted here -->
           </div>
         </div>
-      </aside>
-    </div>
+      </header>
 
-    <!-- Compose Modal -->
-    <div id="compose-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-2xl font-bold mb-4">Compose Email</h2>
-        <form id="compose-form">
+      <div
+        id="general-settings-page"
+        class="hidden bg-white shadow rounded-lg p-6"
+      >
+        <h2 class="text-2xl font-bold mb-4">General Settings</h2>
+        <form>
           <div class="mb-4">
-            <label for="to" class="block text-sm font-medium text-gray-700">To</label>
-            <input type="email" id="to" class="w-full p-2 border rounded-lg" placeholder="Recipient" required />
+            <label
+              for="display-name"
+              class="block text-sm font-medium text-gray-700"
+              >Display Name</label
+            >
+            <input
+              type="text"
+              id="display-name"
+              class="w-full p-2 border rounded-lg"
+              placeholder="Enter your display name"
+            />
           </div>
           <div class="mb-4">
-            <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
-            <input type="text" id="subject" class="w-full p-2 border rounded-lg" placeholder="Subject" required />
+            <label
+              for="email-signature"
+              class="block text-sm font-medium text-gray-700"
+              >Email Signature</label
+            >
+            <textarea
+              id="email-signature"
+              class="w-full p-2 border rounded-lg"
+              placeholder="Enter your email signature"
+            ></textarea>
           </div>
           <div class="mb-4">
-            <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
-            <textarea id="message" class="w-full p-2 border rounded-lg" placeholder="Write your message..."
-              required></textarea>
+            <label
+              for="language"
+              class="block text-sm font-medium text-gray-700"
+              >Preferred Language</label
+            >
+            <select id="language" class="w-full p-2 border rounded-lg">
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <!-- Add more options as needed -->
+            </select>
+          </div>
+          <div class="mb-4">
+            <label
+              for="timezone"
+              class="block text-sm font-medium text-gray-700"
+              >Timezone</label
+            >
+            <select id="timezone" class="w-full p-2 border rounded-lg">
+              <option value="utc">UTC</option>
+              <option value="pst">Pacific Standard Time (PST)</option>
+              <option value="est">Eastern Standard Time (EST)</option>
+              <!-- Add more options as needed -->
+            </select>
           </div>
           <div class="flex justify-end">
-            <button type="button"
-              class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full transition transform hover:scale-105"
-              onclick="toggleComposeModal()">Cancel</button>
-            <button type="submit"
-              class="bg-blue-600 text-white py-2 px-4 rounded-full ml-2 transition transform hover:scale-105">Send</button>
+            <button
+              type="button"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full mr-2"
+              onclick="cancelSettings()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 text-white py-2 px-4 rounded-full"
+              onclick="saveSettings()"
+            >
+              Save
+            </button>
           </div>
         </form>
       </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden">Email Sent Successfully!</div>
+      <!-- Main Content -->
+      <div class="flex flex-1">
+        <!-- Sidebar Section -->
+        <aside
+          class="w-64 bg-white p-4 border-r shadow-lg transition duration-300 ease-in-out hover:bg-gray-50"
+          id="sidebar"
+        >
+          <nav class="space-y-2">
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-blue-100 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-inbox mr-3 text-blue-500"></i> Inbox</a
+            >
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-yellow-100 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-star mr-3 text-yellow-500"></i> Starred</a
+            >
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-green-100 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-paper-plane mr-3 text-green-500"></i> Sent</a
+            >
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-red-100 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-trash mr-3 text-red-500"></i> Trash</a
+            >
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-archive mr-3"></i> Archive</a
+            >
+            <a
+              class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200"
+              href="#"
+              ><i class="fas fa-folder mr-3"></i> Folders</a
+            >
 
-    <!-- Email Action Confirmation -->
-    <div id="confirm-action" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 class="text-xl font-semibold mb-4">Are you sure?</h2>
-        <p class="text-sm text-gray-600">This action cannot be undone.</p>
-        <div class="flex justify-end mt-4">
-          <button
-            class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full transition transform hover:scale-105"
-            onclick="closeConfirmAction()">Cancel</button>
-          <button class="bg-red-600 text-white py-2 px-4 rounded-full ml-2 transition transform hover:scale-105"
-            onclick="deleteEmails()">Delete</button>
+            <!-- Settings with Dropdown -->
+            <div class="relative">
+              <a
+                class="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded transition duration-200 cursor-pointer"
+                onclick="toggleSettingsDropdown()"
+              >
+                <i class="fas fa-cog mr-3"></i> Settings
+              </a>
+              <div
+                id="settings-dropdown"
+                class="absolute left-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition-all transform"
+              >
+                <a
+                  href="general-settings.html"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >General</a
+                >
+                <a
+                  href="notification_page.html"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >Notifications</a
+                >
+                <a
+                  href="privacy_page.html"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >Privacy Settings</a
+                >
+                <a
+                  href="account_page.html"
+                  class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >Account</a
+                >
+                <div
+                  id="settings-dropdown"
+                  class="absolute left-0 mt-2 w-48 bg-white rounded shadow-lg hidden transition-all transform"
+                >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    onclick="toggleGeneralPage()"
+                    >General</a
+                  >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    onclick="toggleAccountPage()"
+                    >Account</a
+                  >
+                  <a
+                    href="#"
+                    class="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >Privacy</a
+                  >
+                </div>
+              </div>
+            </div>
+          </nav>
+        </aside>
+
+        <!-- Email List -->
+        <main class="flex-1 p-4 relative">
+          <div
+            id="loading-spinner"
+            class="loading-spinner hidden absolute inset-0 flex justify-center items-center"
+          >
+            <div
+              class="w-8 h-8 border-4 border-blue-500 rounded-full animate-spin"
+            ></div>
+          </div>
+          <div class="bg-white shadow rounded-lg p-4 relative">
+            <div class="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 class="text-xl font-bold">Inbox</h2>
+              <div class="flex space-x-2">
+                <button
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"
+                  onclick="fetchEmails()"
+                >
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <button
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"
+                >
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Bulk Actions -->
+            <div class="flex justify-between items-center mb-4">
+              <div class="flex space-x-2">
+                <button
+                  class="bg-blue-200 hover:bg-blue-300 text-blue-700 py-1 px-3 rounded-full transition transform hover:scale-105"
+                  onclick="markAsRead()"
+                >
+                  <i class="fas fa-envelope-open"></i> Mark as Read
+                </button>
+                <button
+                  class="bg-red-200 hover:bg-red-300 text-red-700 py-1 px-3 rounded-full transition transform hover:scale-105"
+                  onclick="deleteEmails()"
+                >
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+                <button
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1 px-3 rounded-full transition transform hover:scale-105"
+                  onclick="archiveEmails()"
+                >
+                  <i class="fas fa-archive"></i> Archive
+                </button>
+              </div>
+              <span class="text-sm text-gray-500">2 unread emails</span>
+            </div>
+            <ul id="email-list" class="space-y-4">
+              <!-- Emails dynamically inserted here -->
+            </ul>
+          </div>
+        </main>
+
+        <!-- Email Details -->
+        <aside
+          class="w-96 bg-white p-4 border-l shadow-lg hidden md:block"
+          id="email-details-panel"
+        >
+          <div class="bg-white shadow rounded-lg p-4">
+            <div class="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 class="text-xl font-bold">Email Details</h2>
+              <div class="flex space-x-2">
+                <button
+                  class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-full shadow-md transition transform hover:scale-105"
+                >
+                  <i class="fas fa-arrow-left"></i> Back
+                </button>
+              </div>
+            </div>
+            <div id="email-details-content">
+              <!-- Email details dynamically inserted here -->
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Compose Modal -->
+      <div
+        id="compose-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden"
+      >
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+          <h2 class="text-2xl font-bold mb-4">Compose Email</h2>
+          <form id="compose-form">
+            <div class="mb-4">
+              <label for="to" class="block text-sm font-medium text-gray-700"
+                >To</label
+              >
+              <input
+                type="email"
+                id="to"
+                class="w-full p-2 border rounded-lg"
+                placeholder="Recipient"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="subject"
+                class="block text-sm font-medium text-gray-700"
+                >Subject</label
+              >
+              <input
+                type="text"
+                id="subject"
+                class="w-full p-2 border rounded-lg"
+                placeholder="Subject"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label
+                for="message"
+                class="block text-sm font-medium text-gray-700"
+                >Message</label
+              >
+              <textarea
+                id="message"
+                class="w-full p-2 border rounded-lg"
+                placeholder="Write your message..."
+                required
+              ></textarea>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full transition transform hover:scale-105"
+                onclick="toggleComposeModal()"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-full ml-2 transition transform hover:scale-105"
+              >
+                Send
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast hidden">Email Sent Successfully!</div>
+
+      <!-- Email Action Confirmation -->
+      <div
+        id="confirm-action"
+        class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden"
+      >
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+          <h2 class="text-xl font-semibold mb-4">Are you sure?</h2>
+          <p class="text-sm text-gray-600">This action cannot be undone.</p>
+          <div class="flex justify-end mt-4">
+            <button
+              class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-full transition transform hover:scale-105"
+              onclick="closeConfirmAction()"
+            >
+              Cancel
+            </button>
+            <button
+              class="bg-red-600 text-white py-2 px-4 rounded-full ml-2 transition transform hover:scale-105"
+              onclick="deleteEmails()"
+            >
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/parsleyjs@2.9.2/dist/parsley.min.js"></script>
+  <!-- Parsley.js for form validation -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+  <script>
+    let darkMode = localStorage.getItem("darkMode") === "true"; // Persist dark mode preference
+    let emails = [];
+    let filteredEmails = [];
+    let isFetching = false;
 
 
-<script>
-  let darkMode = localStorage.getItem('darkMode') === 'true';  // Persist dark mode preference
-  let emails = [];
-  let filteredEmails = [];
-  let isFetching = false;
+    // Function to handle navigation to the General settings page
+    const navigateToGeneralSettings = () => {
+      window.location.href = "general-settings.html"; // Redirect to the General settings page
+    };
 
-  // Function to handle navigation to the General settings page
-  const navigateToGeneralSettings = () => {
-    window.location.href = "general-settings.html"; // Redirect to the General settings page
-  };
+    // Attach event listener to the General option (once DOM is loaded)
+    window.addEventListener("load", () => {
+      const generalOption = document.getElementById("general-settings-option");
+      if (generalOption) {
+        generalOption.addEventListener("click", navigateToGeneralSettings);
+      }
 
-  // Attach event listener to the General option (once DOM is loaded)
-  window.addEventListener('load', () => {
-    const generalOption = document.getElementById('general-settings-option');
-    if (generalOption) {
-      generalOption.addEventListener('click', navigateToGeneralSettings);
-    }
+      fetchEmails(); // Ensure fetchEmails is called on page load
+      document
+        .getElementById("search-input")
+        .addEventListener("input", filterEmails);
+      document
+        .getElementById("search-input")
+        .addEventListener("keyup", showSuggestions); // Show suggestions while typing
+    });
 
-    fetchEmails(); // Ensure fetchEmails is called on page load
-    document.getElementById('search-input').addEventListener('input', filterEmails);
-    document.getElementById('search-input').addEventListener('keyup', showSuggestions); // Show suggestions while typing
-  });
+    // Toggle Compose Modal visibility
+    const toggleComposeModal = () => {
+      const modal = document.getElementById("compose-modal");
+      modal.classList.toggle("hidden");
+      document.body.classList.toggle(
+        "overflow-hidden",
+        !modal.classList.contains("hidden")
+      );
+    };
 
+    // Toggle the profile menu visibility
+    const toggleProfileMenu = () => {
+      const profileMenu = document.getElementById("profile-menu");
+      profileMenu.classList.toggle("hidden");
+    };
 
-  // Toggles Compose Modal visibility
-  const toggleComposeModal = () => {
-    const modal = document.getElementById('compose-modal');
-    modal.classList.toggle('hidden');
-    document.body.classList.toggle('overflow-hidden', !modal.classList.contains('hidden'));
-  };
+    // Function to toggle the Settings dropdown
+    const toggleSettingsDropdown = () => {
+      const dropdown = document.getElementById("settings-dropdown");
+      dropdown.classList.toggle("hidden");
+    };
 
-  // Toggles the profile menu visibility
-  const toggleProfileMenu = () => {
-    const profileMenu = document.getElementById('profile-menu');
-    profileMenu.classList.toggle('hidden');
-  };
+    // Toggle Dark Mode function with smooth transition
+    const toggleDarkMode = () => {
+      darkMode = !darkMode;
+      const body = document.body;
+      const themeToggle = document.getElementById("theme-toggle");
+      const fullscreenOverlay = document.getElementById("fullscreen-overlay");
 
-  // Function to toggle the Settings dropdown
-  const toggleSettingsDropdown = () => {
-    const dropdown = document.getElementById('settings-dropdown');
-    dropdown.classList.toggle('hidden');
-  };
+      if (darkMode) {
+        body.classList.add("dark");
+        fullscreenOverlay.classList.add("visible"); // Show overlay in dark mode
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; // Change to sun icon (light mode)
+        console.log("Dark mode activated"); // Debugging message
+      } else {
+        body.classList.remove("dark");
+        fullscreenOverlay.classList.remove("visible"); // Hide overlay in light mode
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; // Change to moon icon (dark mode)
+        console.log("Dark mode deactivated"); // Debugging message
+      }
 
-  // Toggle Dark Mode function with smooth transition
-  const toggleDarkMode = () => {
-    darkMode = !darkMode;
-    const body = document.body;
-    const themeToggle = document.getElementById('theme-toggle');
-    const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+      // Store dark mode setting in localStorage to persist theme
+      localStorage.setItem("darkMode", darkMode);
+    };
 
-    if (darkMode) {
-      body.classList.add('dark');
-      fullscreenOverlay.classList.add('visible');  // Show overlay in dark mode
-      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';  // Change to sun icon (light mode)
-      console.log("Dark mode activated"); // Debugging message
-    } else {
-      body.classList.remove('dark');
-      fullscreenOverlay.classList.remove('visible');  // Hide overlay in light mode
-      themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; // Change to moon icon (dark mode)
-      console.log("Dark mode deactivated"); // Debugging message
-    }
+    // Attach the event listener to the toggle button
+    document
+      .getElementById("theme-toggle")
+      .addEventListener("click", toggleDarkMode);
 
-    // Store dark mode setting in localStorage to persist theme
-    localStorage.setItem('darkMode', darkMode);
-  };
+    // Fetch emails function
+    const fetchEmails = async () => {
+      if (isFetching) return; // Prevent multiple fetches
+      isFetching = true;
+      const spinner = document.getElementById("loading-spinner");
+      spinner.classList.remove("hidden");
 
-  // Attach the event listener to the toggle button
-  document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+      setTimeout(() => {
+        emails = [
+          {
+            id: 1,
+            subject: "Welcome to the platform!",
+            sender: "support@company.com",
+            time: "2 hours ago",
+            snippet: "We are excited to have you onboard.",
+            isRead: false,
+          },
+          {
+            id: 2,
+            subject: "Your weekly update",
+            sender: "updates@company.com",
+            time: "1 day ago",
+            snippet: "Here is your weekly performance summary.",
+            isRead: false,
+          },
+          {
+            id: 3,
+            subject: "Security Alert",
+            sender: "security@company.com",
+            time: "1 hour ago",
+            snippet: "We noticed a suspicious login to your account.",
+            isRead: true,
+          },
+        ];
+        filteredEmails = [...emails]; // Initialize filtered emails
+        renderEmailList();
+        spinner.classList.add("hidden");
+        isFetching = false;
+      }, 1500);
+    };
 
-  // Fetch emails function
-  const fetchEmails = async () => {
-    if (isFetching) return;  // Prevent multiple fetches
-    isFetching = true;
-    const spinner = document.getElementById('loading-spinner');
-    spinner.classList.remove('hidden');
+    // Render the list of emails
+    const renderEmailList = () => {
+      const emailList = document.getElementById("email-list");
+      emailList.innerHTML = "";
 
-    setTimeout(() => {
-      emails = [
-        {
-          id: 1,
-          subject: 'Welcome to the platform!',
-          sender: 'support@company.com',
-          time: '2 hours ago',
-          snippet: 'We are excited to have you onboard.',
-          isRead: false,
-        },
-        {
-          id: 2,
-          subject: 'Your weekly update',
-          sender: 'updates@company.com',
-          time: '1 day ago',
-          snippet: 'Here is your weekly performance summary.',
-          isRead: false,
-        },
-        {
-          id: 3,
-          subject: 'Security Alert',
-          sender: 'security@company.com',
-          time: '1 hour ago',
-          snippet: 'We noticed a suspicious login to your account.',
-          isRead: true,
-        },
-      ];
-      filteredEmails = [...emails];  // Initialize filtered emails
-      renderEmailList();
-      spinner.classList.add('hidden');
-      isFetching = false;
-    }, 1500);
-  };
-
-  // Render the list of emails
-  const renderEmailList = () => {
-    const emailList = document.getElementById('email-list');
-    emailList.innerHTML = '';
-
-    filteredEmails.forEach((email) => {
-      const emailItem = document.createElement('li');
-      emailItem.classList.add('p-4', 'border-b', 'border-gray-200', 'hover:bg-gray-50', 'cursor-pointer', email.isRead ? 'bg-gray-100' : '');
-      emailItem.innerHTML = `
+      filteredEmails.forEach((email) => {
+        const emailItem = document.createElement("li");
+        emailItem.classList.add(
+          "p-4",
+          "border-b",
+          "border-gray-200",
+          "hover:bg-gray-50",
+          "cursor-pointer",
+          email.isRead ? "bg-gray-100" : ""
+        );
+        emailItem.innerHTML = `
         <div class="flex justify-between items-center transition-all">
           <div>
             <h3 class="text-lg font-semibold">${email.subject}</h3>
@@ -790,16 +1042,16 @@
           <span class="text-sm text-gray-500">${email.time}</span>
         </div>
       `;
-      emailItem.onclick = () => showEmailDetails(email);
-      emailList.appendChild(emailItem);
-    });
-  };
+        emailItem.onclick = () => showEmailDetails(email);
+        emailList.appendChild(emailItem);
+      });
+    };
 
-  // Show email details in the right sidebar
-  const showEmailDetails = (email) => {
-    const detailsPanel = document.getElementById('email-details-panel');
-    const detailsContent = document.getElementById('email-details-content');
-    detailsContent.innerHTML = `
+    // Show email details in the right sidebar
+    const showEmailDetails = (email) => {
+      const detailsPanel = document.getElementById("email-details-panel");
+      const detailsContent = document.getElementById("email-details-content");
+      detailsContent.innerHTML = `
       <h2 class="text-2xl font-bold">${email.subject}</h2>
       <p class="text-sm text-gray-600">${email.sender} - ${email.time}</p>
       <div class="mt-4">${email.snippet}</div>
@@ -808,176 +1060,101 @@
         <button onclick="deleteEmail(${email.id})" class="bg-red-600 text-white py-1 px-4 rounded-full ml-2 transition-transform hover:scale-105">Delete</button>
       </div>
     `;
-    detailsPanel.classList.remove('hidden');
-  };
+      detailsPanel.classList.remove("hidden");
+    };
 
-  // Mark email as read
-  const markAsRead = (emailId) => {
-    const email = emails.find((email) => email.id === emailId);
-    if (email) {
-      email.isRead = true;
+    // Mark email as read
+    const markAsRead = (emailId) => {
+      const email = emails.find((email) => email.id === emailId);
+      if (email) {
+        email.isRead = true;
+        renderEmailList();
+        showToast("Email marked as read");
+      }
+    };
+
+    // Delete email
+    const deleteEmail = (emailId) => {
+      emails = emails.filter((email) => email.id !== emailId);
+      filteredEmails = filteredEmails.filter((email) => email.id !== emailId);
       renderEmailList();
-      showToast('Email marked as read');
-    }
-  };
+      showToast("Email deleted");
+    };
 
-  // Delete email
-  const deleteEmail = (emailId) => {
-    emails = emails.filter((email) => email.id !== emailId);
-    filteredEmails = filteredEmails.filter((email) => email.id !== emailId);
-    renderEmailList();
-    showToast('Email deleted');
-  };
+    // Handle email search functionality with smooth suggestion dropdown
+    const showSuggestions = () => {
+      const input = document.getElementById("search-input");
+      const suggestions = document.getElementById("search-suggestions");
+      suggestions.innerHTML = "";
+      if (input.value.trim() === "") {
+        suggestions.classList.add("hidden");
+        return;
+      }
+      suggestions.classList.remove("hidden");
 
-  // Handle email search functionality with smooth suggestion dropdown
-  const showSuggestions = () => {
-    const input = document.getElementById('search-input');
-    const suggestions = document.getElementById('search-suggestions');
-    suggestions.innerHTML = '';
-    if (input.value.trim() === '') {
-      suggestions.classList.add('hidden');
-      return;
-    }
-    suggestions.classList.remove('hidden');
+      const filteredSuggestions = emails.filter(
+        (email) =>
+          email.subject.toLowerCase().includes(input.value.toLowerCase()) ||
+          email.sender.toLowerCase().includes(input.value.toLowerCase())
+      );
 
-    const filteredSuggestions = emails.filter(
-      (email) => email.subject.toLowerCase().includes(input.value.toLowerCase()) || email.sender.toLowerCase().includes(input.value.toLowerCase())
-    );
+      if (filteredSuggestions.length > 0) {
+        filteredSuggestions.forEach((email) => {
+          const suggestionItem = document.createElement("div");
+          suggestionItem.classList.add(
+            "p-2",
+            "cursor-pointer",
+            "hover:bg-gray-100",
+            "transition-all"
+          );
+          suggestionItem.textContent = `${email.subject} - ${email.sender}`;
+          suggestionItem.onclick = () => {
+            document.getElementById("search-input").value = email.subject; // Set input value to the selected suggestion
+            filterEmails(); // Filter the email list
+          };
+          suggestions.appendChild(suggestionItem);
+        });
+      } else {
+        const noResultsItem = document.createElement("div");
+        noResultsItem.classList.add("p-2", "text-gray-500");
+        noResultsItem.textContent = "No suggestions found";
+        suggestions.appendChild(noResultsItem);
+      }
+    };
 
-    if (filteredSuggestions.length > 0) {
-      filteredSuggestions.forEach((email) => {
-        const suggestionItem = document.createElement('div');
-        suggestionItem.classList.add('p-2', 'cursor-pointer', 'hover:bg-gray-100', 'transition-all');
-        suggestionItem.textContent = `${email.subject} - ${email.sender}`;
-        suggestionItem.onclick = () => {
-          document.getElementById('search-input').value = email.subject; // Set input value to the selected suggestion
-          filterEmails(); // Filter the email list
-        };
-        suggestions.appendChild(suggestionItem);
-      });
-    } else {
-      const noResultsItem = document.createElement('div');
-      noResultsItem.classList.add('p-2', 'text-gray-500');
-      noResultsItem.textContent = 'No suggestions found';
-      suggestions.appendChild(noResultsItem);
-    }
-  };
+    // Filter emails based on search input
+    const filterEmails = () => {
+      const query = document.getElementById("search-input").value.toLowerCase();
+      filteredEmails = emails.filter(
+        (email) =>
+          email.subject.toLowerCase().includes(query) ||
+          email.sender.toLowerCase().includes(query)
+      );
+      renderEmailList();
+    };
 
-  // Filter emails based on search input
-  const filterEmails = () => {
-    const query = document.getElementById('search-input').value.toLowerCase();
-    filteredEmails = emails.filter(
-      (email) => email.subject.toLowerCase().includes(query) || email.sender.toLowerCase().includes(query)
-    );
-    renderEmailList();
-  };
+    // Show a toast notification with smooth transition
+    const showToast = (message) => {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.remove("hidden");
+      toast.classList.add("fade-in");
+      setTimeout(() => {
+        toast.classList.remove("fade-in");
+        toast.classList.add("fade-out");
+        setTimeout(() => toast.classList.add("hidden"), 500);
+      }, 3000);
+    };
 
-  // Show a toast notification with smooth transition
-  const showToast = (message) => {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.remove('hidden');
-    toast.classList.add('fade-in');
-    setTimeout(() => {
-      toast.classList.remove('fade-in');
-      toast.classList.add('fade-out');
-      setTimeout(() => toast.classList.add('hidden'), 500); // Wait for fade-out to finish
-    }, 3000);
-  };
+    // Validate form with Parsley.js
+    const validateForm = () => {
+      $("#settings-form").parsley().validate();
+    };
 
-  // Simulate marking all emails as read
-  const markAllAsRead = () => {
-    emails.forEach((email) => {
-      email.isRead = true;
-    });
-    renderEmailList();
-    showToast('All emails marked as read');
-  };
-
-  // Simulate deleting multiple emails
-  const deleteMultipleEmails = () => {
-    emails = [];
-    filteredEmails = [];
-    renderEmailList();
-    showToast('All emails deleted');
-  };
-
-  // Handle confirmation action (e.g., delete)
-  const openConfirmAction = (action) => {
-    const confirmAction = document.getElementById('confirm-action');
-    confirmAction.classList.remove('hidden');
-    document.getElementById('confirm-action').dataset.action = action;
-  };
-
-  const closeConfirmAction = () => {
-    document.getElementById('confirm-action').classList.add('hidden');
-  };
-
-  // Execute the confirm action
-  const executeConfirmAction = () => {
-    const action = document.getElementById('confirm-action').dataset.action;
-    if (action === 'delete') {
-      deleteMultipleEmails();
-    }
-    closeConfirmAction();
-  };
-
-  // Set up the event listeners after the window is loaded
-  window.addEventListener('load', () => {
-    fetchEmails();  // Ensure the fetchEmails is called on page load
-    document.getElementById('search-input').addEventListener('input', filterEmails);
-    document.getElementById('search-input').addEventListener('keyup', showSuggestions); // Show suggestions while typing
-  });
-
-  // Toggle Account Page Visibility
-  function toggleAccountPage() {
-    const accountPage = document.getElementById('account-page');
-    const otherPages = document.querySelectorAll('.page'); // Adjust this to target all other pages
-    otherPages.forEach(page => page.classList.add('hidden')); // Hide all other pages
-    accountPage.classList.toggle('hidden'); // Show/Hide Account Page
-  }
-
-  // Save Account Settings
-  function saveAccount(event) {
-    event.preventDefault(); // Prevent form submission
-
-    // Collect user input
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const twoFactor = document.getElementById('two-factor').value;
-
-    // Simulate saving data (you can integrate API calls here)
-    console.log('Account Settings Saved:', { username, email, password, twoFactor });
-    alert('Account settings saved successfully!');
-  }
-
-  // Cancel Account Changes
-  function cancelAccount() {
-    if (confirm('Are you sure you want to discard changes?')) {
-      toggleAccountPage(); // Hide the Account page
-    }
-  }
-
-
-  // Load General Settings into settings-container
-  function loadGeneralSettings() {
-    fetch("general-settings.html")
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById("settings-container").innerHTML = html;
-        showGeneralSettings(); // Show the General Settings page
-      });
-  }
-
-  // Attach event listener to General in the Settings dropdown
-  document.querySelector("#settings-dropdown a[href='#general']").addEventListener("click", (e) => {
-    e.preventDefault();
-    loadGeneralSettings();
-  });
-
-
-</script>
-
-
+    // Reusable function for toggling settings
+    const toggleSetting = (settingId, settingValue) => {
+      const settingElement = document.getElementById(settingId);
+      settingElement.checked = settingValue;
+    };
+  </script>
 </html>
